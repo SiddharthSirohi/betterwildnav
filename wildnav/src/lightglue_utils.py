@@ -10,6 +10,7 @@ import numpy as np
 from lightglue import LightGlue, SuperPoint
 from lightglue.utils import load_image, rbd
 from dinov2_extractor import DINOv2Extractor
+from dinov2_hybrid_extractor import DINOv2HybridExtractor
 
 torch.set_grad_enabled(False)
 
@@ -43,23 +44,23 @@ def match_image(use_dinov2=True):
 
     # Select feature extractor
     if use_dinov2:
-        print('Running LightGlue + DINOv2 inference on device \"{}\"'.format(device))
-        # Use ViT-S/14 model for efficiency (21M params)
-        # Options: dinov2_vits14 (21M), dinov2_vitb14 (86M), dinov2_vitl14 (300M), dinov2_vitg14 (1.1B)
-        # All DINOv2 descriptors are projected to 256-dim for compatibility with LightGlue
-        extractor = DINOv2Extractor(
+        print('Running LightGlue + DINOv2 (Hybrid) inference on device \"{}\"'.format(device))
+        # Hybrid approach: SuperPoint for keypoints + DINOv2 for descriptors
+        # This combines adaptive keypoint detection with semantic-rich descriptors
+        extractor = DINOv2HybridExtractor(
             model_name='dinov2_vits14',
             max_keypoints=max_keypoints,
             device=device
         ).eval()
+        matcher_features = 'superpoint'  # 256-dim descriptors compatible with SuperPoint
     else:
         print('Running LightGlue + SuperPoint inference on device \"{}\"'.format(device))
         extractor = SuperPoint(max_num_keypoints=max_keypoints).eval().to(device)
+        matcher_features = 'superpoint'
 
     # Initialize LightGlue matcher
-    # Use 'disk' features type (default 128-dim, matching our DINOv2 projection)
     matcher = LightGlue(
-        features='disk',
+        features=matcher_features,
         filter_threshold=filter_threshold,
         depth_confidence=depth_confidence,
         width_confidence=width_confidence
