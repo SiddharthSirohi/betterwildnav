@@ -61,3 +61,7 @@ Thumbs.db
 # Git submodules (keeping the reference but not the content)
 wildnav/src/superglue_lib/**
 !wildnav/src/superglue_lib/.gitkeep
+
+# Migration & documentation archives
+migration-iot.txt
+documentation/results.zip

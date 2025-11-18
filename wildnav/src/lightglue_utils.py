@@ -32,7 +32,7 @@ def match_image(use_dinov2=True):
     resize_dim = 800  # Resize images to this dimension
     force_cpu = False  # Set to True to run on CPU (slower)
     show_keypoints = True  # Visualize keypoints in output
-    no_display = False  # Set to True to disable CV2 window
+    no_display = True  # Set to True to disable CV2 window (required for Colab/headless)
 
     # LightGlue matcher parameters
     filter_threshold = 0.1  # Match confidence threshold
