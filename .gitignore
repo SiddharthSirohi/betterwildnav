@@ -39,6 +39,13 @@ results/
 *.jpeg
 *.csv
 
+# Exception: Allow wildnav/assets folder
+!wildnav/assets/
+!wildnav/assets/**/*.png
+!wildnav/assets/**/*.jpg
+!wildnav/assets/**/*.jpeg
+!wildnav/assets/**/*.csv
+
 # Logs
 *.log
 
