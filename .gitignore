@@ -38,10 +38,6 @@ results/
 *.jpg
 *.jpeg
 *.csv
-!assets/**/*.png
-!assets/**/*.jpg
-!assets/**/*.jpeg
-!assets/**/*.csv
 
 # Logs
 *.log
