@@ -22,6 +22,7 @@ ENV/
 *.swo
 *~
 .DS_Store
+/CLAUDE.md
 
 # Model Weights & Cache
 *.pth
