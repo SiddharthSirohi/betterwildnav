@@ -23,8 +23,9 @@ git+https://github.com/cvg/LightGlue.git
 kornia>=0.8.2
 kornia-rs>=0.1.10
 
+# DINOv3 Feature Extractor (Phase 2)
+transformers>=4.57.0
+timm>=1.0.20
+
 # Note: Install LightGlue using:
 # pip install git+https://github.com/cvg/LightGlue.git
-#
-# For DINOv3 (Phase 2 - coming soon):
-# Will require additional dependencies for vision transformers
