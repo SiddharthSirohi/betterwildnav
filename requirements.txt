@@ -1,0 +1,30 @@
+# Core Dependencies
+numpy>=2.2.0
+opencv-python>=4.12.0
+matplotlib>=3.10.0
+pandas>=2.3.0
+scikit-learn>=1.7.0
+seaborn>=0.13.0
+
+# Geospatial
+haversine>=2.9.0
+
+# HTTP Requests
+requests>=2.32.0
+
+# Deep Learning - PyTorch
+torch>=2.9.0
+torchvision>=0.24.0
+
+# Computer Vision - LightGlue
+git+https://github.com/cvg/LightGlue.git
+
+# Computer Vision - Kornia (required by LightGlue)
+kornia>=0.8.2
+kornia-rs>=0.1.10
+
+# Note: Install LightGlue using:
+# pip install git+https://github.com/cvg/LightGlue.git
+#
+# For DINOv3 (Phase 2 - coming soon):
+# Will require additional dependencies for vision transformers

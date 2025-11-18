@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+env/
+venv/
+ENV/
+*.venv
+
+# IDE
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Model Weights & Cache
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+.cache/
+checkpoints/
+
+# Results & Output
+results/
+*.png
+*.jpg
+*.jpeg
+*.csv
+!assets/**/*.png
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.csv
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# OS specific
+Thumbs.db
+.directory
+
+# Git submodules (keeping the reference but not the content)
+wildnav/src/superglue_lib/**
+!wildnav/src/superglue_lib/.gitkeep
