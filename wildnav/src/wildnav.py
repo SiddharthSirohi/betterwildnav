@@ -3,7 +3,7 @@ import csv
 import cv2
 import haversine as hs
 from haversine import Unit
-import lightglue_utils
+import roma_utils  # Using RoMa + DINOv2 for feature matching
 
 ############################################################################################################
 # Important variables
@@ -180,8 +180,8 @@ for drone_image in drone_images_list:
         # Write the query photo to the map folder
         cv2.imwrite(map_path + "1_query_image.png", photo)
 
-        #Call LightGlue wrapper function to match the query image to the map
-        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number = lightglue_utils.match_image()
+        #Call RoMa wrapper function to match the query image to the map
+        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number = roma_utils.match_image()
         
         # If the drone image was located in the map and the number of features is greater than the previous best match, then update the best match
         # Sometimes the pixel center returned by the perspective transform exceeds 1, discard the resuls in that case
