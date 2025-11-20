@@ -17,7 +17,7 @@
 import cv2
 import numpy as np
 from third_party.dinov2 import dino
-from omniglue import utils
+from . import utils
 import tensorflow as tf
 import torch
 

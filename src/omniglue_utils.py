@@ -36,6 +36,28 @@ class Timer:
             print(f'{name}: {avg_time:.3f}s')
 
 
+def resize_image(image, max_dimension):
+    """
+    Resize image if any dimension exceeds max_dimension.
+    Maintains aspect ratio.
+
+    Args:
+        image: Input image (numpy array)
+        max_dimension: Maximum allowed dimension (int)
+
+    Returns:
+        Resized image
+    """
+    h, w = image.shape[:2]
+    if max(h, w) <= max_dimension:
+        return image
+
+    scale = max_dimension / max(h, w)
+    new_h, new_w = int(h * scale), int(w * scale)
+    resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+    return resized
+
+
 def match_image():
     """
     Wrapper function for matching two images using OmniGlue.
@@ -57,7 +79,7 @@ def match_image():
 
     # OmniGlue parameters
     confidence_threshold = 0.02  # Filter matches below this confidence
-    resize_max = 800  # Max dimension for image resizing (to match original SuperGlue)
+    resize_max = 512  # Max dimension for image resizing (GPU memory constraint)
 
     # RANSAC parameters (matching original)
     ransac_threshold = 5.0  # pixels
@@ -96,6 +118,10 @@ def match_image():
         raise FileNotFoundError(f"Query image not found: {query_path}")
 
     query_image = cv2.imread(str(query_path))
+
+    # Resize if needed to avoid GPU OOM
+    query_image = resize_image(query_image, resize_max)
+
     query_gray = cv2.cvtColor(query_image, cv2.COLOR_BGR2GRAY)
     query_rgb = cv2.cvtColor(query_image, cv2.COLOR_BGR2RGB)
     print(f'Query image loaded: {query_image.shape}')
@@ -132,6 +158,9 @@ def match_image():
         if sat_image is None:
             print(f'  ✗ Failed to load {sat_path.name}')
             continue
+
+        # Resize if needed to avoid GPU OOM
+        sat_image = resize_image(sat_image, resize_max)
 
         sat_rgb = cv2.cvtColor(sat_image, cv2.COLOR_BGR2RGB)
         timer.update('load_sat')

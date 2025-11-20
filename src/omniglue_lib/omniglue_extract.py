@@ -17,9 +17,9 @@
 from typing import Optional
 
 import numpy as np
-from omniglue import dino_extract
-from omniglue import superpoint_extract
-from omniglue import utils
+from . import dino_extract
+from . import superpoint_extract
+from . import utils
 import tensorflow as tf
 
 DINO_FEATURE_DIM = 768
