@@ -120,6 +120,8 @@ def match_image():
     best_located_image = None
     best_features_mean = np.array([0, 0])
     best_confidence_sum = -1
+    second_best_confidence_sum = -1
+    best_homography_det = None
 
     # Iterate through all satellite patches
     for idx, sat_path in enumerate(sat_images):
@@ -169,6 +171,9 @@ def match_image():
             if M is None:
                 print(f'  ✗ Homography estimation failed')
                 continue
+
+            # Calculate homography determinant for quality check
+            homography_det = np.linalg.det(M[:2, :2])  # Only use top-left 2x2 for rotation/scale part
 
             # Filter matches by RANSAC inliers
             inlier_mask = mask.ravel().astype(bool)
@@ -253,6 +258,10 @@ def match_image():
                 query_viz, sat_viz, mkpts0, mkpts1, confidences, show_keypoints
             )
 
+            # Track second-best confidence for ratio calculation
+            if best_confidence_sum > 0:
+                second_best_confidence_sum = max(second_best_confidence_sum, best_confidence_sum)
+
             # Update best match
             satellite_map_index = idx
             max_matches = num_inliers
@@ -260,6 +269,10 @@ def match_image():
             best_located_image = located_image
             best_features_mean = features_mean
             best_confidence_sum = confidence_sum
+            best_homography_det = homography_det
+        elif confidence_sum > second_best_confidence_sum:
+            # Track second-best even if not the best
+            second_best_confidence_sum = confidence_sum
 
         timer.update('viz')
 
@@ -277,13 +290,19 @@ def match_image():
 
     timer.print()
 
+    # Calculate confidence ratio
+    confidence_ratio = best_confidence_sum / second_best_confidence_sum if second_best_confidence_sum > 0 else float('inf')
+
     return (
         satellite_map_index,
         best_center,
         best_located_image,
         best_features_mean,
         query_image,
-        max_matches
+        max_matches,
+        confidence_ratio,
+        best_homography_det,
+        timer  # Return timer for detailed timing info
     )
 
 

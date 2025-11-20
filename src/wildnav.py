@@ -178,6 +178,10 @@ for drone_image in drone_images_list:
     located = False # flag to indicate if the drone image was located in the map
     center = None # center of the drone image in the map
 
+    # Initialize benchmarking variables
+    best_confidence_ratio = None
+    best_homography_det = None
+    best_match_timer = None
 
     rotations = [20] # list of rotations to try
                      # keep in mind GNSS metadata could have wrong rotation angle
@@ -190,8 +194,8 @@ for drone_image in drone_images_list:
         cv2.imwrite(map_path + "1_query_image.png", photo)
 
         #Call matcher wrapper function to match the query image to the map
-        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number = matcher.match_image()
-        
+        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number, confidence_ratio, homography_det, match_timer = matcher.match_image()
+
         # If the drone image was located in the map and the number of features is greater than the previous best match, then update the best match
         # Sometimes the pixel center returned by the perspective transform exceeds 1, discard the resuls in that case
         if (feature_number > max_features and center_new[0] < 1 and center_new[1] < 1):
@@ -202,6 +206,10 @@ for drone_image in drone_images_list:
             query_image = query_image_new
             max_features = feature_number
             located = True
+            # Store benchmarking metrics
+            best_confidence_ratio = confidence_ratio
+            best_homography_det = homography_det
+            best_match_timer = match_timer
     photo_name = drone_image.filename.split("/")[-1]
 
     # If the drone image was located in the map, calculate the geographical location of the drone image
@@ -215,8 +223,35 @@ for drone_image in drone_images_list:
         
         print("Image " + str(photo_name) + " was successfully located in the map")
         print("Calculated location: ", str(current_location[0:2]))
-        print("Ground Truth: ", drone_image.latitude, drone_image.longitude)   
-        
+        print("Ground Truth: ", drone_image.latitude, drone_image.longitude)
+
+        # Calculate position error using Haversine distance
+        loc_calculated = (current_location[0], current_location[1])
+        loc_ground_truth = (drone_image.latitude, drone_image.longitude)
+        position_error_meters = hs.haversine(loc_calculated, loc_ground_truth, unit=Unit.METERS)
+
+        # Determine success based on threshold (< 20 meters)
+        success_threshold = 20.0
+        is_success = position_error_meters < success_threshold
+        status = "SUCCESS" if is_success else "FAILURE"
+
+        # Display benchmarking metrics
+        print(f"Position Error: {position_error_meters:.2f} meters")
+
+        # Calculate timing breakdown
+        if best_match_timer and hasattr(best_match_timer, 'times'):
+            inference_time = sum(best_match_timer.times.get('matching', [0]))
+            total_time = sum([sum(times) for times in best_match_timer.times.values()])
+            print(f"Time: Inference={inference_time:.2f}s, Total={total_time:.2f}s")
+
+        print(f"Confidence Ratio: {best_confidence_ratio:.2f}")
+
+        if best_homography_det is not None:
+            print(f"Homography Determinant: {best_homography_det:.4f}")
+
+        print(f"Status: {status} (threshold: {success_threshold}m)")
+        print("="*50)
+
         # Save the calculated location for later comparison with the ground truth
         drone_image.matched = True
         drone_image.latitude_calculated = current_location[0]
