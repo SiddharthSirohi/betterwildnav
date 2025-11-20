@@ -3,7 +3,16 @@ import csv
 import cv2
 import haversine as hs
 from haversine import Unit
-import superglue_utils
+
+# Configuration: Choose matcher
+USE_OMNIGLUE = True  # Set to False to use original SuperGlue
+
+if USE_OMNIGLUE:
+    import omniglue_utils as matcher
+    print("Using OmniGlue for feature matching")
+else:
+    import superglue_utils as matcher
+    print("Using SuperGlue for feature matching")
 
 ############################################################################################################
 # Important variables
@@ -180,8 +189,8 @@ for drone_image in drone_images_list:
         # Write the query photo to the map folder
         cv2.imwrite(map_path + "1_query_image.png", photo)
 
-        #Call superglue wrapper function to match the query image to the map
-        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number = superglue_utils.match_image()
+        #Call matcher wrapper function to match the query image to the map
+        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number = matcher.match_image()
         
         # If the drone image was located in the map and the number of features is greater than the previous best match, then update the best match
         # Sometimes the pixel center returned by the perspective transform exceeds 1, discard the resuls in that case

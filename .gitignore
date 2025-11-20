@@ -50,3 +50,63 @@ qtcreator-*
 # Catkin custom files
 CATKIN_IGNORE
 git_stuff.txt
+
+# ============================================
+# OmniGlue Integration - Added 2025-11-20
+# ============================================
+
+# Claude Code documentation (local development only)
+CLAUDE.md
+../CLAUDE.md
+../INTEGRATION_COMPLETE.md
+
+# Model weights (too large for git, download separately via setup scripts)
+models/
+*.pth
+*.tgz
+og_export/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Generated results (outputs can be regenerated)
+results/*.png
+results/*.csv
+
+# Keep directory structure
+!results/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Temporary files
+*.tmp
+*.bak

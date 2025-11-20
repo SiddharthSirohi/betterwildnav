@@ -1,0 +1,93 @@
+# OmniGlue Configuration for WildNav Integration
+# Modify these parameters to tune matching performance
+
+# Matching Algorithm
+matcher: "omniglue"  # Options: "omniglue", "superglue"
+
+# OmniGlue Parameters
+omniglue:
+  # Confidence threshold for filtering matches (0.0 - 1.0)
+  # Higher values = stricter filtering = fewer but more confident matches
+  # Recommended: 0.02 for general use, 0.01 for permissive, 0.05 for strict
+  confidence_threshold: 0.02
+
+  # Maximum image dimension for resizing (pixels)
+  # OmniGlue components have different size requirements:
+  #   - SuperPoint: divisible by 8
+  #   - DINOv2: max 630px internally
+  # Recommended: 630 for consistency, 800 to match original WildNav
+  resize_max: 800
+
+  # Visualization parameters
+  show_keypoints: true
+  max_matches_to_visualize: 100  # Limit for clarity
+  no_display: true  # Disable GUI (important for Colab)
+
+# RANSAC Homography Parameters (shared between matchers)
+ransac:
+  # RANSAC reprojection threshold (pixels)
+  # Lower values = stricter geometric validation
+  threshold: 5.0
+
+  # Minimum number of matches required for homography
+  min_matches: 4
+
+# Best Match Selection Strategy
+selection:
+  # Primary criterion: "num_matches" or "confidence_sum"
+  # "num_matches": Select patch with most inlier matches (original behavior)
+  # "confidence_sum": Select patch with highest total confidence
+  primary_criterion: "num_matches"
+
+  # Secondary criterion for tie-breaking
+  secondary_criterion: "confidence_sum"
+
+# Model Paths (relative to wildnav/ directory)
+models:
+  omniglue: "./models/og_export"
+  superpoint: "./models/sp_v6"
+  dinov2: "./models/dinov2_vitb14_pretrain.pth"
+
+# Input/Output Paths
+paths:
+  map_dir: "../assets/map/"
+  query_dir: "../assets/query/"
+  results_dir: "../results/"
+  map_csv: "../assets/map/map.csv"
+  drone_metadata_csv: "../assets/query/photo_metadata.csv"
+
+# Performance Optimization
+performance:
+  # Use GPU if available
+  use_gpu: true
+
+  # Early stopping: stop searching if this confidence is exceeded
+  # Set to 1.0 to disable
+  early_stop_confidence: 0.95
+
+  # Number of satellite patches to process in parallel
+  # Set to 1 for sequential processing (lower memory)
+  batch_size: 1
+
+# Debugging/Logging
+debug:
+  # Print detailed matching information
+  verbose: true
+
+  # Save intermediate visualizations
+  save_all_matches: false  # Warning: creates many files
+
+  # Profile execution time
+  enable_profiling: true
+
+# Experimental Features
+experimental:
+  # Multi-scale matching (test at multiple resolutions)
+  enable_multiscale: false
+  scales: [0.5, 1.0, 1.5]
+
+  # Adaptive confidence threshold based on image quality
+  adaptive_threshold: false
+
+  # Use spatial prior (narrow search area based on previous localization)
+  use_spatial_prior: false
