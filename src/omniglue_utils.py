@@ -36,6 +36,35 @@ class Timer:
             print(f'{name}: {avg_time:.3f}s')
 
 
+def initialize_omniglue():
+    """
+    Initialize the OmniGlue model once.
+    Should be called before processing multiple images to avoid reloading.
+
+    Returns:
+        OmniGlue model instance
+    """
+    print('='*50)
+    print('Initializing OmniGlue (SuperPoint + DINOv2 + Matcher)...')
+    print('='*50)
+
+    start_time = time.time()
+    try:
+        og = OmniGlue(
+            og_export='../models/og_export',
+            sp_export='../models/sp_v6',
+            dino_export='../models/dinov2_vitb14_pretrain.pth',
+        )
+        load_time = time.time() - start_time
+        print(f'✓ OmniGlue loaded successfully in {load_time:.2f}s')
+        print('='*50)
+        return og
+    except Exception as e:
+        print(f'✗ Error loading OmniGlue: {e}')
+        print('Make sure models are downloaded. Run: python setup_models_colab.py')
+        raise
+
+
 def resize_image(image, max_dimension):
     """
     Resize image if any dimension exceeds max_dimension.
@@ -58,10 +87,14 @@ def resize_image(image, max_dimension):
     return resized
 
 
-def match_image():
+def match_image(og_model=None):
     """
     Wrapper function for matching two images using OmniGlue.
     Provides an interface compatible with original superglue_utils.match_image()
+
+    Args:
+        og_model: Pre-initialized OmniGlue model instance (optional).
+                  If None, a new model will be loaded (slower).
 
     Returns:
         satellite_map_index: Index of best matching satellite patch (int)
@@ -93,24 +126,28 @@ def match_image():
     print('OmniGlue Feature Matching')
     print('='*50)
 
-    # Initialize OmniGlue model
-    print('Loading OmniGlue (SuperPoint + DINOv2 + Matcher)...')
+    # Initialize OmniGlue model if not provided
     timer = Timer()
     timer.update('init')
 
-    try:
-        og = OmniGlue(
-            og_export='../models/og_export',
-            sp_export='../models/sp_v6',
-            dino_export='../models/dinov2_vitb14_pretrain.pth',
-        )
-        print(f'✓ OmniGlue loaded successfully')
-    except Exception as e:
-        print(f'✗ Error loading OmniGlue: {e}')
-        print('Make sure models are downloaded. Run: python setup_models_colab.py')
-        raise
-
-    timer.update('model_load')
+    if og_model is None:
+        print('Loading OmniGlue (SuperPoint + DINOv2 + Matcher)...')
+        try:
+            og = OmniGlue(
+                og_export='../models/og_export',
+                sp_export='../models/sp_v6',
+                dino_export='../models/dinov2_vitb14_pretrain.pth',
+            )
+            print(f'✓ OmniGlue loaded successfully')
+        except Exception as e:
+            print(f'✗ Error loading OmniGlue: {e}')
+            print('Make sure models are downloaded. Run: python setup_models_colab.py')
+            raise
+        timer.update('model_load')
+    else:
+        print('Using pre-loaded OmniGlue model')
+        og = og_model
+        timer.update('model_reuse')
 
     # Load query image (drone image)
     query_path = Path(input_dir) / '1_query_image.png'

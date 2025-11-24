@@ -166,6 +166,10 @@ longitude_calculated = []
 
 print(str(len(drone_images_list)) + " drone photos were loaded.")
 
+# Initialize OmniGlue model once before processing (if using OmniGlue)
+omniglue_model = None
+if USE_OMNIGLUE:
+    omniglue_model = matcher.initialize_omniglue()
 
 # Iterate through all the drone images
 for drone_image in drone_images_list:
@@ -194,7 +198,7 @@ for drone_image in drone_images_list:
         cv2.imwrite(map_path + "1_query_image.png", photo)
 
         #Call matcher wrapper function to match the query image to the map
-        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number, confidence_ratio, homography_det, match_timer = matcher.match_image()
+        satellite_map_index_new, center_new, located_image_new, features_mean_new, query_image_new, feature_number, confidence_ratio, homography_det, match_timer = matcher.match_image(omniglue_model)
 
         # If the drone image was located in the map and the number of features is greater than the previous best match, then update the best match
         # Sometimes the pixel center returned by the perspective transform exceeds 1, discard the resuls in that case
